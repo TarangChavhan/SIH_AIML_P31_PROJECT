@@ -2,6 +2,7 @@ package com.example.civilink;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -18,51 +19,47 @@ import cz.msebera.android.httpclient.Header;
 public class LoginActivity extends AppCompatActivity {
 
     TextInputEditText etUsername, etPassword;
-    TextView tvRegister;
     androidx.appcompat.widget.AppCompatButton btnLogin, btnGoogle;
+    TextView tvSignUp;
 
-    String BASE_URL = "http://YOUR_LOCALHOST_OR_SERVER/login.php";
-    // 👉 Replace with your backend API link
+    // 🔗 Replace with your backend API
+    String BASE_URL = "http://YOUR_IP_OR_DOMAIN/login.php";
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Initialize views
+        // Bind views
         etUsername = findViewById(R.id.LoginTextInputEditTextUsername);
         etPassword = findViewById(R.id.LoginTextInputEditTextPassword);
-        btnLogin = findViewById(R.id.Loginbtn);
-        tvRegister = findViewById(R.id.TVRegistration);
-        btnGoogle = findViewById(R.id.btnGooglelogin);
+        btnLogin   = findViewById(R.id.Loginbtn);
+        btnGoogle  = findViewById(R.id.GoogleLoginBtn);
+        tvSignUp   = findViewById(R.id.SignUp);
 
         // Login Button Click
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String username = etUsername.getText().toString().trim();
-                String password = etPassword.getText().toString().trim();
+        btnLogin.setOnClickListener(v -> {
+            String username = etUsername.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
 
-                if (username.isEmpty() || password.isEmpty()) {
-                    Toast.makeText(LoginActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-                } else {
-                    loginUser(username, password);
-                }
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            } else {
+                loginUser(username, password);
             }
         });
 
-        // Navigate to Register
-        tvRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(LoginActivity.this, RegisterActivity.class);
-                startActivity(i);
-            }
-        });
-
-        // Google Button (Just Example, implement Firebase/Google SDK if needed)
+        // Google Login Placeholder
         btnGoogle.setOnClickListener(v -> {
             Toast.makeText(LoginActivity.this, "Google Login clicked", Toast.LENGTH_SHORT).show();
+            // 👉 Later: Implement Firebase Google Sign-In here
+        });
+
+        // Redirect to Registration
+        tvSignUp.setOnClickListener(v -> {
+            Intent i = new Intent(LoginActivity.this, RegistrationActivity.class);
+            startActivity(i);
         });
     }
 
@@ -77,7 +74,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
                     String response = new String(responseBody);
-                    // Example Response: {"status":"success","message":"Login Successful"}
+                    // Expected: {"status":"success","message":"Login Successful"}
                     org.json.JSONObject json = new org.json.JSONObject(response);
 
                     String status = json.getString("status");
@@ -86,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
 
                     if (status.equals("success")) {
-                        // Go to Home/Dashboard
+                        // ✅ Redirect to HomeActivity after login
                         Intent i = new Intent(LoginActivity.this, HomeActivity.class);
                         startActivity(i);
                         finish();

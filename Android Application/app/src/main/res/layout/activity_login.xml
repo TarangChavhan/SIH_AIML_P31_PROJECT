@@ -105,16 +105,14 @@
         android:background="@drawable/btshape" />
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/GoogleLoginBtn"
-        android:layout_width="250dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="12dp"
-        android:text="Sing Up with Google"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="16dp"
-        android:background="@drawable/btshape" />
+        android:drawableLeft="@drawable/google"
+
+        android:drawablePadding="16dp"
+        android:layout_marginTop="18dp"
+        android:layout_gravity="center"
+        android:text="Sign with Google" />
 
     <!-- Sign Up Redirect -->
     <TextView
@@ -127,6 +125,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_marginTop="4dp"
+        android:id="@+id/SignUp"
         android:layout_height="wrap_content"
         android:textColor="@color/Yellow"
         android:gravity="center"
