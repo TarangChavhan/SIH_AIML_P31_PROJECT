@@ -1,38 +1,53 @@
-import requests, time, mimetypes
+import requests, base64
 
-HF_TOKEN = "APIKEY"
-# Replace with a supported captioning model
-API_URL = "https://api-inference.huggingface.co/models/Salesforce/blip-image-captioning-large"
+API_KEY = "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"
+endpoint = "https://openrouter.ai/api/v1/chat/completions"
 
-def summarize_local_image(image_path: str):
-    mime_type, _ = mimetypes.guess_type(image_path)
-    headers = {
-        "Authorization": f"Bearer {HF_TOKEN}",
-        "Content-Type": mime_type or "image/jpeg"
+def summarize_issue(image_path):
+    # Encode image
+    with open(image_path, "rb") as f:
+        img_bytes = f.read()
+    base64_str = base64.b64encode(img_bytes).decode("utf-8")
+    data_url = f"data:image/jpeg;base64,{base64_str}"
+
+    # Payload with Indian citizen tone
+    payload = {
+        "model": "openai/gpt-4o-mini",   # vision-capable
+        "messages": [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": (
+                            "You are an assistant helping citizens report public problems to local Indian government authorities. "
+                            "Write reports in a simple, natural Indian citizen tone. "
+                            "Rules:\n"
+                            "1. If the photo shows a public issue (potholes, garbage, broken streetlights, waterlogging, damaged roads, etc.), "
+                            "start with 'Report:' and write a short complaint in plain language, 1–2 sentences. "
+                            "2. The report should sound like a normal Indian person writing to the municipal office, not very formal. "
+                            "Example: 'Report: The road has big potholes filled with water. It is risky for people and vehicles, please repair soon.' "
+                            "3. If the photo is irrelevant (documents, MCQs, random objects, selfies), reply exactly: 'Not a public issue photo.'"
+                        )
+                    },
+                    {"type": "image_url", "image_url": {"url": data_url}}
+                ]
+            }
+        ]
     }
 
-    with open(image_path, "rb") as f:
-        data = f.read()
+    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
+    response = requests.post(endpoint, json=payload, headers=headers)
+    result = response.json()
 
-    for attempt in range(3):
-        response = requests.post(API_URL, headers=headers, data=data)
-        if response.status_code == 200:
-            result = response.json()
-            if isinstance(result, list) and "generated_text" in result[0]:
-                return result[0]["generated_text"]
-            return result
-        elif response.status_code == 503:
-            print("⏳ Model loading, wait 10s...")
-            time.sleep(10)
-        elif response.status_code == 404:
-            print("❌ Model not found. Perhaps the model is not enabled for inference.")
-            return None
-        else:
-            print("Error:", response.status_code, response.text)
-            response.raise_for_status()
-    return "Error: Failed to get summary."
+    try:
+        return result["choices"][0]["message"]["content"]
+    except:
+        return "Error in processing image."
 
-if __name__ == "__main__":
-    img_path = r"C:\Users\naman\OneDrive\Documents\python\Image_processing_model\School.jpg"
-    summary = summarize_local_image(img_path)
-    print("Image Summary:", summary)
+# Example tests
+print(summarize_issue("MCQ.jpg"))       
+# -> "Not a public issue photo."
+
+print(summarize_issue("DamageRoad.jpg"))   
+# -> "Report: The road has many potholes filled with water. It is very unsafe for people and vehicles, kindly repair it soon."
