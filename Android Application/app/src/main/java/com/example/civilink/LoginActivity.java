@@ -40,14 +40,9 @@ public class LoginActivity extends AppCompatActivity {
 
         // Login Button Click
         btnLogin.setOnClickListener(v -> {
-            String username = etUsername.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-
-            if (username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            } else {
-                loginUser(username, password);
-            }
+            Intent i = new Intent(LoginActivity.this,MainActivity.class);
+            startActivity(i);
+            finish();
         });
 
         // Google Login Placeholder
